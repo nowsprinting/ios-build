@@ -4,11 +4,16 @@ iOSプロジェクト用のビルドスクリプトです。
 # 使いかた
 iOSプロジェクト直下にpuild.pyファイルを置き、実行します。
 
-    $ build.py
+    $ build.py [-t NAME] [-c NAME]
+
+    -t --target ビルドするTarget名を指定します。省略時の値はソースのDEFAULT_TARGETSに定義します
+    -c --configuration ビルドするConfiguration名を指定します。省略時の値はソースのDEFAULT_CONFIGURATIONSに定義します
 
 完了すると、.ipaファイルが build/\<target.name\>_\<configuration.name\>_\<versionName\>.\<versionCode\>.ipa に出力されます。
 
 Configurationが'Release'であれば、AppStore向けのzipファイルを出力します。
+
+尚、事前準備として、ソース40行目付近のINFO_PLIST_FILE_PATH, COPYRIGHT_FILE_PATH, DEFAULT_TARGETS, DEFAULT_CONFIGURATIONSをプロジェクトに合わせて変更してください。
 
 
 # スクリプトの処理内容
