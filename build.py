@@ -53,6 +53,8 @@ import os
 import re
 import argparse
 import plistlib
+import urlparse
+import subprocess
 from subprocess import check_call
 from datetime import datetime
 
@@ -183,6 +185,31 @@ def archive2zip(currentTarget, currentConfig, version):
     os.chdir("../..")
 
 
+#create OTA AdHoc distribute plist file
+def createOtaPlist(target, config, baseUrl):
+	# we need to convert Info.plist into a xml file (by default it's a binary plist)
+    # this logic copied from: https://github.com/jfoucry/xcodebuild-wrapper
+    infoPlist = "build/%s-iphoneos/%s.app/Info.plist"%(config,target)
+    xmlfile = "/tmp/%s_%s.xml"%(target,config)
+    subprocess.Popen('plutil -convert xml1 -o %s %s'%(xmlfile,infoPlist),shell=True).wait()
+    infoPlistFile = open(xmlfile, 'r')
+    app_plist = plistlib.readPlist(infoPlistFile)
+    #create plist
+    pl = {'items':[{
+                   'assets':[{
+                             'kind':'software-package',
+                             'url':urlparse.urljoin(baseUrl,"%s_%s_%s.ipa"%(target,config,app_plist['CFBundleVersion']))
+                             }],
+                   'metadata':{
+                            'bundle-identifier':app_plist['CFBundleIdentifier'],
+                            'bundle-version':app_plist['CFBundleVersion'],
+                            'kind':'software',
+                            'title':app_plist['CFBundleDisplayName']
+                            }
+                   }]}
+    plistlib.writePlist(pl, "build/%s_%s_%s.plist"%(target,config,app_plist['CFBundleVersion']))
+
+
 if __name__ == '__main__':
     # Check arguments
     argParser = argparse.ArgumentParser(description='Build script for iOS project.')
@@ -232,5 +259,6 @@ if __name__ == '__main__':
             #make archive
             if findRelease.search(configuration.lower())<0:
                 archive2ipa(target, configuration, infoPlist.version)
+                createOtaPlist(target, configuration, "https://examples.com/ota/")
             else:
                 archive2zip(target, configuration, infoPlist.version)

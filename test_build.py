@@ -38,6 +38,7 @@ from build import *
 
 PLIST_PATH = 'Test-Info.plist'
 COPYRIGHT_PATH = 'copyright.plist'
+OTA_PLIST_PATH = 'build/OtaTest_Debug_1.1.1.23.plist'
 
 
 class BuildTests(unittest.TestCase):
@@ -155,6 +156,26 @@ class BuildTests(unittest.TestCase):
         finally:
             #tear down
             os.remove(COPYRIGHT_PATH)
+
+    def test_create_ota_plist(self):
+        """OTA用plistファイルを生成できること"""
+        try:
+            if os.path.exists(OTA_PLIST_PATH):
+                os.remove(OTA_PLIST_PATH)
+            #do
+            createOtaPlist("OtaTest","Debug","https://examples.com/ota/")
+            assert os.path.exists(OTA_PLIST_PATH)
+            plist = plistlib.readPlist(OTA_PLIST_PATH)
+            assert plist['items'][0]['assets'][0]['kind'] == 'software-package'
+            assert plist['items'][0]['assets'][0]['url'] == 'https://examples.com/ota/OtaTest_Debug_1.1.1.23.ipa'
+            assert plist['items'][0]['metadata']['bundle-identifier'] == 'jp.co.hubsys.DenAce'
+            assert plist['items'][0]['metadata']['bundle-version'] == '1.1.1.23'
+            assert plist['items'][0]['metadata']['kind'] == 'software'
+            assert plist['items'][0]['metadata']['title'] == 'DenAce'
+        finally:
+            #tear down
+            os.remove(OTA_PLIST_PATH)
+
 
 if __name__ == '__main__':
     unittest.main()
