@@ -27,8 +27,9 @@ Configurationが'Release'であれば、AppStore向けのzipファイルを出�
 
 1. xcodebuildによるビルドを実行します
 
-1. .ipa/zipファイルを生成します（フォーマットは上記）
+1. ipa/zipファイルを生成します（フォーマットは上記）
 
+1. OTA配布用のplistファイルを生成します（フォーマットはipaファイルと同じ）
 
 
 # 注意事項：スクリプトが自動生成するファイルについて
@@ -40,10 +41,24 @@ Configurationが'Release'であれば、AppStore向けのzipファイルを出�
 ブランチを切り替えても常にCFBundleVersionが前に進むようにするために
 VCSのignoreファイルに追加しておくことをおすすめします。
 
-
 ### copyright.plist
 
 アプリ内でCopyright表示に使うための"年"が書きこまれます。
 
 ただし、"copyright\_year\_to"の値が未来年の場合、値は上書きされません
 （今年に戻されてしまうことはありません）。
+
+
+# TestFlightへのアップロード
+
+ビルド後、TestFlightアップロードAPIによるデプロイを行なうスクリプトを追加しました
+
+    $ deploy2testflight.py [-t NAME] [-c NAME]
+
+    -t --target デプロイするTarget名を指定します。省略時の値はソースのDEFAULT_TARGETSに定義します
+    -c --configuration デプロイするConfiguration名を指定します。省略時の値はソースのDEFAULT_CONFIGURATIONSに定義します
+
+あらかじめ、ソースのUPLOAD_API_TOKENおよびTEAM_TOKENを設定してください。
+
+notes（Release Notesとして表示）には、gitリポジトリのmasterにマージされていないコミットサブジェクトを渡しています。
+git-flowを使用し、release-finish前にビルドする運用を想定していますが、プロジェクトごとに使いやすい形に変更して使ってください
