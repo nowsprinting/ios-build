@@ -76,6 +76,7 @@ if __name__ == '__main__':
     argParser = argparse.ArgumentParser(description='Upload ipa files to testflightapp.com script for iOS project.')
     argParser.add_argument('-t', '--target', metavar='NAME', nargs=1, help='build the target NAME')
     argParser.add_argument('-c', '--configuration', metavar='NAME', nargs=1, help='use the build configuration NAME for building each target')
+    argParser.add_argument('-s', '--since', default=['master'], metavar='NAME', nargs=1, help='since commit-hash, used for release-notes. ex)<NAME>..HEAD')
     args = argParser.parse_args()
 
     # Specify build target and configuration.
@@ -88,8 +89,8 @@ if __name__ == '__main__':
     else:
         configurations = DEFAULT_CONFIGURATIONS
 
-    # Create note (commit that has not been merged into the master)
-    notes = "Changelog:\n%s"%(os.popen("git log --no-merges --pretty=format:\"- %s\" master..").read())
+    # Create notes (default: commit that has not been merged into the master)
+    notes = "Changelog:\n%s"%(os.popen("git log --no-merges --pretty=format:\"- %s\" " + args.since[0] + "..").read())
 
     # Deploy
     for target in targets:
